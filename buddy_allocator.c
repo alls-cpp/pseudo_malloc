@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+
 #include "buddy_allocator.h"
 
 // initializes a buddy allocator
@@ -15,7 +16,7 @@ void buddy_allocator_init(Buddy_allocator *allocator,
 	allocator->memory = memory;
 	allocator->min_bucket_size = min_bucket_size;
 
-	assert(num_levels <= MAX_LEVELS && "too many levels");
+	assert(num_levels < MAX_LEVELS && "too many levels");
 
 	// initialize the bitmap
 	int num_bits = (1 << num_levels) - 1;

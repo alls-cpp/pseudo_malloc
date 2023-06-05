@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdint.h>
 
 typedef struct
@@ -16,3 +17,6 @@ int bitmap_get_bit(const Bitmap *bitmap, int bit_num);
 
 // sets the bit bit_num to status
 void bitmap_set_bit(Bitmap *bitmap, int bit_num, int status);
+
+// prints the bitmap
+void bitmap_print(const Bitmap *bitmap);

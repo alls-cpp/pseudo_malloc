@@ -1,12 +1,12 @@
 #pragma once
+
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
 
 #include "bitmap.h"
 
-// TODO define MAX_LEVELS
-#define MAX_LEVELS -1
+#define MAX_LEVELS 16
 
 typedef struct
 {

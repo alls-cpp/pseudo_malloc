@@ -53,3 +53,30 @@ void bitmap_set_bit(Bitmap *bitmap,
 		bitmap->buffer[byte_num] &= ~(1 << bit_in_byte);
 	}
 }
+
+// prints the bitmap like a tree, where the root is the first bit
+void bitmap_print(const Bitmap *bitmap)
+{
+	int num_levels = 0;
+	int num_bits = bitmap->num_bits;
+	while (num_bits > 0)
+	{
+		num_bits /= 2;
+		num_levels++;
+	}
+
+	int level = 0;
+	int num_bits_in_level = 1;
+	int bit_num = 0;
+	while (level < num_levels)
+	{
+		for (int i = 0; i < num_bits_in_level; i++)
+		{
+			printf("%d", bitmap_get_bit(bitmap, bit_num));
+			bit_num++;
+		}
+		printf("\n");
+		num_bits_in_level *= 2;
+		level++;
+	}
+}
