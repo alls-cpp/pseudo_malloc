@@ -28,9 +28,22 @@ void buddy_allocator_init(Buddy_allocator *allocator,
 		   num_levels, (1 << num_levels), min_bucket_size);
 }
 
+int buddy_allocator_get_level(Buddy_allocator *allocator, int size)
+{
+	int level = ceil(log2(size / allocator->min_bucket_size));
+	return level;
+}
+
 // allocates a block of memory of size size
 void buddy_allocator_malloc(Buddy_allocator *allocator,
 							int size)
 {
-	// TODO
+	// TODO in the wrapper function, check the size
+	int level = buddy_allocator_get_level(allocator, size);
+}
+
+// frees a block of memory
+void buddy_allocator_free(Buddy_allocator *allocator,
+						  int address)
+{
 }

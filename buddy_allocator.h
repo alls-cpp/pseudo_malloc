@@ -23,6 +23,9 @@ void buddy_allocator_init(Buddy_allocator *allocator,
 						  char *memory,
 						  int min_bucket_size);
 
+// returns the level of the smallest bucket that can hold size bytes
+int buddy_allocator_get_level(Buddy_allocator *allocator, int size);
+
 // allocates a block of memory of size size
 void buddy_allocator_malloc(Buddy_allocator *allocator, int size);
 
