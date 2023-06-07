@@ -1,12 +1,6 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdio.h>
-#include <assert.h>
-
 #include "bitmap.h"
-
-#define MAX_LEVELS 16
 
 typedef struct
 {
@@ -32,6 +26,8 @@ int buddy_allocator_get_level(Buddy_allocator *allocator, int size);
 int buddy_allocator_first_available_block(const Bitmap *map, int level);
 
 int buddy_allocator_get_buddy(Buddy_allocator *allocator, int level);
+
+void buddy_allocator_release_buddy(Buddy_allocator *allocator, int index);
 
 // allocates a block of memory of size size
 void *buddy_allocator_malloc(Buddy_allocator *allocator, int size);

@@ -4,14 +4,16 @@ AR=ar
 RM=rm
 
 OBJS=bitmap.o\
-     buddy_allocator.o
+     buddy_allocator.o\
+	 pseudo_allocator.o
 
 HEADERS=bitmap.h\
-        buddy_allocator.h
+        buddy_allocator.h\
+		pseudo_allocator.h
 
 LIBS=libbuddy.a
 
-BINS=pseudo_malloc_test
+BINS=test
 
 .PHONY: clean all
 
@@ -24,7 +26,7 @@ libbuddy.a: $(OBJS)
 	$(AR) -rcs $@ $^
 	$(RM) $(OBJS)
 
-pseudo_malloc_test: pseudo_malloc_test.o $(LIBS)
+test: test.o $(LIBS)
 	$(CC) $(CCOPTS) -o $@ $^ -lm
 
 clean:
