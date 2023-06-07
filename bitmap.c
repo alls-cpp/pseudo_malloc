@@ -3,6 +3,11 @@
 
 #include "bitmap.h"
 
+// red and green
+#define COLOR_RED "\x1b[31m"
+#define COLOR_GREEN "\x1b[32m"
+#define COLOR_RESET "\x1b[0m"
+
 // initializes a bitmap
 void bitmap_init(Bitmap *bitmap,
 				 uint8_t *buffer,
@@ -54,11 +59,12 @@ void bitmap_set_bit(Bitmap *bitmap,
 	}
 }
 
-// prints the bitmap like a tree, where the root is the first bit
+// prints the bitmap
 void bitmap_print(const Bitmap *bitmap)
 {
 	int num_levels = 0;
 	int num_bits = bitmap->num_bits;
+
 	while (num_bits > 0)
 	{
 		num_bits /= 2;
@@ -68,15 +74,46 @@ void bitmap_print(const Bitmap *bitmap)
 	int level = 0;
 	int num_bits_in_level = 1;
 	int bit_num = 0;
+	int padding = (1 << num_levels) - 1;
+
+	printf("\n");
+
 	while (level < num_levels)
 	{
+		// print left padding
+		for (int i = 0; i < padding; i++)
+		{
+			printf(" ");
+		}
+
+		padding = padding * 2 + 1;
+
+		// print bits
 		for (int i = 0; i < num_bits_in_level; i++)
 		{
-			printf("%d", bitmap_get_bit(bitmap, bit_num));
+			if (bitmap_get_bit(bitmap, bit_num))
+			{
+				printf(COLOR_GREEN "1" COLOR_RESET);
+			}
+			else
+			{
+				printf(COLOR_RED "0" COLOR_RESET);
+			}
 			bit_num++;
+
+			// print right padding
+			for (int i = 0; i < padding; i++)
+			{
+				printf(" ");
+			}
 		}
+
 		printf("\n");
+
 		num_bits_in_level *= 2;
+		padding /= 4;
 		level++;
 	}
+
+	printf("\n");
 }
