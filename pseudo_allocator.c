@@ -1,4 +1,5 @@
 #include <sys/mman.h>
+#include <stdio.h>
 
 #include "pseudo_allocator.h"
 
@@ -28,7 +29,7 @@ void *pseudo_malloc(int size)
     if (size <= 0)
     {
         printf("invalid size\n");
-        return 0;
+        return NULL;
     }
 
     if (size < PAGE_SIZE / 4)
@@ -41,7 +42,7 @@ void *pseudo_malloc(int size)
         if (address == MAP_FAILED)
         {
             perror("mmap failed");
-            return 0;
+            return NULL;
         }
         return address;
     }
@@ -49,6 +50,11 @@ void *pseudo_malloc(int size)
 
 void pseudo_free(void *address)
 {
+    if (address <= 0)
+    {
+        printf("invalid address\n");
+        return;
+    }
     if (address >= (void *)memory && address < (void *)memory + BUDDY_ALLOCATOR_MEMORY_SIZE)
     {
         buddy_allocator_free(&buddy_allocator, address);
@@ -61,4 +67,9 @@ void pseudo_free(void *address)
             perror("munmap failed");
         }
     }
+}
+
+void pseudo_bitmap_print()
+{
+    bitmap_print(&buddy_allocator.map, -1, -1);
 }

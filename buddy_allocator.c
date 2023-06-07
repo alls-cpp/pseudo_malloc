@@ -128,7 +128,7 @@ int buddy_allocator_get_buddy(Buddy_allocator *allocator,
 void buddy_allocator_release_buddy(Buddy_allocator *allocator,
 								   int index)
 {
-	int brother_index = index & 1 ? index - 1 : index + 1;
+	int brother_index = index & 1 ? index + 1 : index - 1;
 	int parent_index = (index - 1) / 2;
 
 	// if the brother is free, merge the two blocks
@@ -157,8 +157,6 @@ void *
 buddy_allocator_malloc(Buddy_allocator *allocator,
 					   int size)
 {
-	// TODO in the wrapper function, check the size, so it's a legal size
-
 	// increase the size because I write the index of the block in the first 4 bytes
 	size += sizeof(int);
 	int level = buddy_allocator_get_level(allocator, size);
@@ -191,13 +189,6 @@ buddy_allocator_malloc(Buddy_allocator *allocator,
 void buddy_allocator_free(Buddy_allocator *allocator,
 						  void *address)
 {
-	// invalid address
-	if (address == NULL)
-	{
-		printf("trying to free a NULL pointer\n");
-		return;
-	}
-
 	// get the index of the buddy
 	int buddy_index = *((int *)address - 1);
 
