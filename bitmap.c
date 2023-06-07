@@ -3,7 +3,6 @@
 
 #include "bitmap.h"
 
-// red and green
 #define COLOR_RED "\x1b[31m"
 #define COLOR_GREEN "\x1b[32m"
 #define COLOR_RESET "\x1b[0m"
@@ -60,7 +59,9 @@ void bitmap_set_bit(Bitmap *bitmap,
 }
 
 // prints the bitmap
-void bitmap_print(const Bitmap *bitmap)
+void bitmap_print(const Bitmap *bitmap,
+				  int highlight_bit,
+				  int color)
 {
 	int num_levels = 0;
 	int num_bits = bitmap->num_bits;
@@ -76,8 +77,6 @@ void bitmap_print(const Bitmap *bitmap)
 	int bit_num = 0;
 	int padding = (1 << num_levels) - 1;
 
-	printf("\n");
-
 	while (level < num_levels)
 	{
 		// print left padding
@@ -91,14 +90,22 @@ void bitmap_print(const Bitmap *bitmap)
 		// print bits
 		for (int i = 0; i < num_bits_in_level; i++)
 		{
-			if (bitmap_get_bit(bitmap, bit_num))
+			if (bit_num == highlight_bit)
 			{
-				printf(COLOR_GREEN "1" COLOR_RESET);
+				if (color == 1)
+				{
+					printf(COLOR_GREEN "%d" COLOR_RESET, bitmap_get_bit(bitmap, bit_num));
+				}
+				else
+				{
+					printf(COLOR_RED "%d" COLOR_RESET, bitmap_get_bit(bitmap, bit_num));
+				}
 			}
 			else
 			{
-				printf(COLOR_RED "0" COLOR_RESET);
+				printf("%d", bitmap_get_bit(bitmap, bit_num));
 			}
+
 			bit_num++;
 
 			// print right padding
@@ -115,5 +122,5 @@ void bitmap_print(const Bitmap *bitmap)
 		level++;
 	}
 
-	printf("\n");
+	printf("\n\n");
 }

@@ -19,4 +19,4 @@ int bitmap_get_bit(const Bitmap *bitmap, int bit_num);
 void bitmap_set_bit(Bitmap *bitmap, int bit_num, int status);
 
 // prints the bitmap
-void bitmap_print(const Bitmap *bitmap);
+void bitmap_print(const Bitmap *bitmap, int highlight_bit, int color);

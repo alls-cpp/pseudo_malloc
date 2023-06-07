@@ -37,4 +37,4 @@ int buddy_allocator_get_buddy(Buddy_allocator *allocator, int level);
 void *buddy_allocator_malloc(Buddy_allocator *allocator, int size);
 
 // frees a block of memory
-void buddy_allocator_free(Buddy_allocator *allocator, int address);
+void buddy_allocator_free(Buddy_allocator *allocator, void *address);

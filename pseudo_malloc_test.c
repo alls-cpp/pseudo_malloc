@@ -16,24 +16,6 @@ uint8_t bitmap_buffer[BITMAP_BUFFER_SIZE];
 
 Buddy_allocator buddy_allocator;
 
-/*
-				visual representation of the buddy allocator's memory
-
-								1048576                                         0
-
-			 524288                                  524288                     1
-
-	262144             262144              262144             262144            2
-
-131072  131072     131072  131072      131072  131072     131072  131072        3
-
-								   ...
-
-1024                               ...                              1024        10
-
-
-*/
-
 int main(int argc, char **argv)
 {
 	buddy_allocator_init(&buddy_allocator,
@@ -42,14 +24,8 @@ int main(int argc, char **argv)
 						 memory,
 						 BUDDY_ALLOCATOR_MIN_BUCKET_SIZE);
 
-	buddy_allocator_malloc(&buddy_allocator, 65);
-	bitmap_print(&buddy_allocator.map);
-	buddy_allocator_malloc(&buddy_allocator, 65);
-	bitmap_print(&buddy_allocator.map);
-	buddy_allocator_malloc(&buddy_allocator, 65);
-	bitmap_print(&buddy_allocator.map);
-	buddy_allocator_malloc(&buddy_allocator, 65);
-	bitmap_print(&buddy_allocator.map);
-	buddy_allocator_malloc(&buddy_allocator, 65);
-	bitmap_print(&buddy_allocator.map);
+	void *address = buddy_allocator_malloc(&buddy_allocator, 1024);
+	address = buddy_allocator_malloc(&buddy_allocator, 1024);
+	address = buddy_allocator_malloc(&buddy_allocator, 1024);
+	buddy_allocator_free(&buddy_allocator, address);
 }

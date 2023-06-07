@@ -4,6 +4,22 @@
 
 #include "buddy_allocator.h"
 
+/*
+				visual representation of the buddy allocator's memory
+
+								1048576                                         0
+
+			 524288                                  524288                     1
+
+	262144             262144              262144             262144            2
+
+131072  131072     131072  131072      131072  131072     131072  131072        3
+
+								   ...
+
+1024                               ...                              1024        10
+*/
+
 // initializes a buddy allocator
 void buddy_allocator_init(Buddy_allocator *allocator,
 						  uint8_t *buffer,
@@ -26,9 +42,9 @@ void buddy_allocator_init(Buddy_allocator *allocator,
 	bitmap_set_bit(&allocator->map, 0, 1);
 
 	printf("buddy allocator initialized\n");
-	printf("total memory: %d bytes\n", (1 << (num_levels - 1)) * min_bucket_size);
-	printf("num_levels: %d\n", allocator->num_levels);
-	printf("min_bucket_size: %d bytes\n", allocator->min_bucket_size);
+	printf("\ttotal memory:    %d bytes\n", (1 << (num_levels - 1)) * min_bucket_size);
+	printf("\tnum_levels:      %d\n", allocator->num_levels);
+	printf("\tmin_bucket_size: %d bytes\n\n", allocator->min_bucket_size);
 }
 
 // returns the memory address of a buddy
@@ -39,9 +55,6 @@ void *buddy_allocator_get_memory(Buddy_allocator *allocator,
 	int start_level_index = (1 << level) - 1;
 	int dimension_of_buddy = allocator->min_bucket_size * (1 << (allocator->num_levels - level - 1));
 	int offset = (index - start_level_index) * dimension_of_buddy;
-
-	printf("level: %d, index: %d, offset: %d\n", level, index, offset);
-
 	return allocator->memory + offset;
 }
 
@@ -56,7 +69,7 @@ int buddy_allocator_get_level(Buddy_allocator *allocator,
 		size_of_level *= 2;
 		level--;
 	}
-	printf("%d bytes requested corresponds to level %d, that is %d bytes\n", size - sizeof(int), level, size_of_level);
+	printf("%ld bytes requested corresponds to level %d, that is %d bytes\n", size - sizeof(int), level, size_of_level);
 	return level;
 }
 
@@ -105,7 +118,8 @@ int buddy_allocator_get_buddy(Buddy_allocator *allocator,
 		int left_child_index = parent_index * 2 + 1;
 		int right_child_index = parent_index * 2 + 2;
 		bitmap_set_bit(&allocator->map, right_child_index, 1);
-		printf("split l:%d, left_idx: %d, right_idx: %d\r", level, left_child_index, right_child_index);
+
+		printf("\tsplitting %d into %d and %d\n", parent_index, left_child_index, right_child_index);
 
 		buddy_index = left_child_index;
 	}
@@ -114,9 +128,37 @@ int buddy_allocator_get_buddy(Buddy_allocator *allocator,
 	return buddy_index;
 }
 
+void buddy_allocator_release_buddy(Buddy_allocator *allocator,
+								   int index)
+{
+	int brother_index = index & 1 ? index - 1 : index + 1;
+	int parent_index = (index - 1) / 2;
+
+	// if the brother is free, merge the two blocks
+	if (bitmap_get_bit(&allocator->map, brother_index))
+	{
+		// mark the parent as free
+		bitmap_set_bit(&allocator->map, parent_index, 1);
+
+		bitmap_set_bit(&allocator->map, index, 0);
+		bitmap_set_bit(&allocator->map, brother_index, 0);
+
+		printf("\tmerging %d and %d into %d\n", index, brother_index, parent_index);
+
+		// repeat recursively
+		buddy_allocator_release_buddy(allocator, parent_index);
+	}
+	else
+	{
+		// mark the block as free
+		bitmap_set_bit(&allocator->map, index, 1);
+	}
+}
+
 // allocates a block of memory of size size
-void *buddy_allocator_malloc(Buddy_allocator *allocator,
-							 int size)
+void *
+buddy_allocator_malloc(Buddy_allocator *allocator,
+					   int size)
 {
 	// TODO in the wrapper function, check the size, so it's a legal size
 
@@ -139,13 +181,39 @@ void *buddy_allocator_malloc(Buddy_allocator *allocator,
 	// write the index of the buddy in the first 4 bytes
 	*address = buddy_index;
 
-	// printf("allocated l:%d, idx: %d, address: %p\n", level, buddy_index, address);
+	printf("allocated level %d, idx %d, address %p\n\n", level, buddy_index, address);
+
+	// print the bitmap only if there are less than 7 levels, otherwise it's too big
+	if (allocator->num_levels < 7)
+		bitmap_print(&allocator->map, buddy_index, 0);
 
 	return address + 1;
 }
 
 // frees a block of memory
 void buddy_allocator_free(Buddy_allocator *allocator,
-						  int address)
+						  void *address)
 {
+	// invalid address
+	if (address == NULL)
+	{
+		printf("trying to free a NULL pointer\n");
+		return;
+	}
+
+	// get the index of the buddy
+	int buddy_index = *((int *)address - 1);
+
+	if (buddy_index < 0 || buddy_index >= allocator->map.num_bits)
+	{
+		printf("trying to free a pointer that was not allocated by this allocator\n");
+		return;
+	}
+
+	buddy_allocator_release_buddy(allocator, buddy_index);
+
+	printf("freed level %d, idx %d, address %p\n\n", allocator->num_levels - 1, buddy_index, address);
+	// print the bitmap only if there are less than 7 levels, otherwise it's too big
+	if (allocator->num_levels < 7)
+		bitmap_print(&allocator->map, buddy_index, 1);
 }
