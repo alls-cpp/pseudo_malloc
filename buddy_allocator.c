@@ -198,9 +198,9 @@ void buddy_allocator_free(Buddy_allocator *allocator,
 		return;
 	}
 
+	printf("freed level %d, idx %d, address %p\n", allocator->num_levels - 1, buddy_index, address);
 	buddy_allocator_release_buddy(allocator, buddy_index);
 
-	printf("freed level %d, idx %d, address %p\n\n", allocator->num_levels - 1, buddy_index, address);
 	// print the bitmap only if there are less than 7 levels, otherwise it's too big
 	if (allocator->num_levels < 7)
 		bitmap_print(&allocator->map, buddy_index, 1);

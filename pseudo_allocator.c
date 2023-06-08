@@ -48,20 +48,21 @@ void *pseudo_malloc(int size)
     }
 }
 
-void pseudo_free(void *address)
+void pseudo_free(void *address,
+                 int size)
 {
     if (address <= 0)
     {
         printf("invalid address\n");
         return;
     }
-    if (address >= (void *)memory && address < (void *)memory + BUDDY_ALLOCATOR_MEMORY_SIZE)
+    if (size < PAGE_SIZE / 4)
     {
         buddy_allocator_free(&buddy_allocator, address);
     }
     else
     {
-        int result = munmap(address, 0);
+        int result = munmap(address, size);
         if (result == -1)
         {
             perror("munmap failed");
